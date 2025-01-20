@@ -112,11 +112,11 @@ public class kgToIbs{
 // Class to represent a weight unit
 class Units {
     double units;
-
+    //constructor
     public Units(double units) {
         this.units = units;
     }
-
+    //getter method
     public double getUnits() {
         return units;
     }
@@ -127,7 +127,7 @@ class MaximumCalculations {
     private ArrayList<Units> unitConversions; // List to store conversions
     private int space; // Maximum allowed calculations
     private double coefficient = 0.45359237; // Conversion coefficient (pounds to kilograms)
-
+    //constructor
     public MaximumCalculations(int space) {
         this.space = space;
         this.unitConversions = new ArrayList<>();
