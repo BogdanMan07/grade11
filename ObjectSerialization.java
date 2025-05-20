@@ -2,7 +2,7 @@ import java.io.*;
 
 public class ObjectSerialization {
     public static void main(String[] args) {
-        Employee empl1 = new Employee(1213, "Mimi", 20);
+        Employee empl1 = new Employee(1213, "John", 20);
 
         empl1.writeToFile("records.txt");
         empl1.readFromFile("records.txt");
