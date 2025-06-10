@@ -108,3 +108,32 @@ class FlashcardManager {
         return cards;
     }
 }
+class FlashcardApp extends JFrame {
+    private CardLayout layout;
+    private JPanel mainPanel;
+    private FlashcardManager manager;
+
+    public FlashcardApp() {
+        manager = new FlashcardManager();
+        layout = new CardLayout();
+        mainPanel = new JPanel(layout);
+
+        mainPanel.add(new MainMenuPanel(this), "MainMenu");
+        mainPanel.add(new CreatePanel(manager, this), "Create");
+        mainPanel.add(new QuizPanel(manager, this), "Quiz");
+
+        add(mainPanel);
+        setTitle("Flashcard Quiz App");
+        setSize(600, 400);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setVisible(true);
+    }
+
+    public void switchTo(String name) {
+        if (name.equals("Quiz")) {
+            mainPanel.remove(2);
+            mainPanel.add(new QuizPanel(manager, this), "Quiz");
+        }
+        layout.show(mainPanel, name);
+    }
+}
