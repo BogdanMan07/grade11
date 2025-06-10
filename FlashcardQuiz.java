@@ -1,7 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
 import java.util.ArrayList;
 
 public class FlashCardQuiz {
@@ -96,16 +94,30 @@ class FlashcardApp extends JFrame {
 
 class MainMenuPanel extends JPanel {
     public MainMenuPanel(FlashcardApp app) {
-        setLayout(new GridLayout(3, 1, 10, 10));
+
+        setLayout(new GridLayout(4, 1, 10, 10));
+        setBackground(new Color(240, 248, 255));
+        setBorder(BorderFactory.createEmptyBorder(40, 100, 40, 100));
+
+        JLabel imageLabel = new JLabel();
+        ImageIcon imageIcon = new ImageIcon(getClass().getResource("/images (1).png"));
+        Image scaledImage = imageIcon.getImage().getScaledInstance(150, 100, Image.SCALE_SMOOTH);
+        imageLabel.setIcon(new ImageIcon(scaledImage));
+        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         JButton createBtn = new JButton("Create Flashcards");
         JButton quizBtn = new JButton("Start Quiz");
         JButton exitBtn = new JButton("Exit");
 
+        createBtn.setBackground(new Color(12, 238, 144));
+        quizBtn.setBackground(new Color(17, 216, 230));
+        exitBtn.setBackground(new Color(255, 100, 122));
+
         createBtn.addActionListener(e -> app.switchTo("Create"));
         quizBtn.addActionListener(e -> app.switchTo("Quiz"));
         exitBtn.addActionListener(e -> System.exit(0));
 
+        add(imageLabel);
         add(createBtn);
         add(quizBtn);
         add(exitBtn);
@@ -122,8 +134,11 @@ class CreatePanel extends JPanel {
     public CreatePanel(FlashcardManager manager, FlashcardApp app) {
         this.manager = manager;
         setLayout(new BorderLayout());
+        setBackground(new Color(250, 250, 240));
 
-        JPanel inputPanel = new JPanel(new GridLayout(2, 2));
+        JPanel inputPanel = new JPanel(new GridLayout(2, 2, 10, 10));
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        inputPanel.setBackground(new Color(250, 250, 240));
         questionField = new JTextField();
         answerField = new JTextField();
         inputPanel.add(new JLabel("Question:"));
@@ -131,11 +146,17 @@ class CreatePanel extends JPanel {
         inputPanel.add(new JLabel("Answer:"));
         inputPanel.add(answerField);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        buttonPanel.setBackground(new Color(250, 250, 240));
         JButton addButton = new JButton("Add Card");
         JButton updateButton = new JButton("Update Selected");
         JButton deleteButton = new JButton("Delete Selected");
         JButton backButton = new JButton("Back to Menu");
+
+        addButton.setBackground(new Color(12, 238, 144));
+        updateButton.setBackground(new Color(17, 216, 230));
+        deleteButton.setBackground(new Color(255, 100, 122));
+        backButton.setBackground(new Color(211, 211, 211));
 
         buttonPanel.add(addButton);
         buttonPanel.add(updateButton);
@@ -145,6 +166,7 @@ class CreatePanel extends JPanel {
         listModel = new DefaultListModel<>();
         flashcardList = new JList<>(listModel);
         JScrollPane listScrollPane = new JScrollPane(flashcardList);
+        listScrollPane.setBorder(BorderFactory.createTitledBorder("Flashcards"));
         refreshCardList();
 
         flashcardList.addListSelectionListener(e -> {
@@ -203,6 +225,92 @@ class CreatePanel extends JPanel {
         listModel.clear();
         for (Flashcard card : manager.getAllCards()) {
             listModel.addElement(card.getQuestion() + " - " + card.getAnswer());
+        }
+    }
+}
+
+class QuizPanel extends JPanel {
+    private int currentIndex = 0;
+    private int score = 0;
+    private JLabel questionLabel;
+    private JTextField answerField;
+    private JButton submitBtn;
+    private FlashcardManager manager;
+    private FlashcardApp app;
+
+    public QuizPanel(FlashcardManager manager, FlashcardApp app) {
+        this.manager = manager;
+        this.app = app;
+        setLayout(new BorderLayout());
+        setBackground(new Color(245, 245, 245));
+
+        questionLabel = new JLabel("Question will appear here", JLabel.CENTER);
+        questionLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        answerField = new JTextField();
+        submitBtn = new JButton("Submit Answer");
+        JButton backButton = new JButton("Back to Menu");
+
+        submitBtn.setBackground(new Color(12, 238, 144));
+        backButton.setBackground(new Color(211, 211, 211));
+
+        submitBtn.addActionListener(e -> {
+            try {
+                if (currentIndex < manager.getAllCards().size()) {
+                    Flashcard current = manager.getAllCards().get(currentIndex);
+                    String userAnswer = answerField.getText().trim();
+                    if (userAnswer.equalsIgnoreCase(current.getAnswer().trim())) {
+                        score++;
+                    }
+                    currentIndex++;
+                    answerField.setText("");
+                    loadNextQuestion();
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error during quiz: " + ex.getMessage());
+            }
+        });
+
+        backButton.addActionListener(e -> {
+            currentIndex = 0;
+            score = 0;
+            answerField.setText("");
+            app.switchTo("MainMenu");
+        });
+
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(new Color(245, 245, 245));
+        topPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
+        topPanel.add(questionLabel, BorderLayout.CENTER);
+
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.setBackground(new Color(245, 245, 245));
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        centerPanel.add(answerField, BorderLayout.CENTER);
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        bottomPanel.setBackground(new Color(245, 245, 245));
+        bottomPanel.add(submitBtn);
+        bottomPanel.add(backButton);
+
+        add(topPanel, BorderLayout.NORTH);
+        add(centerPanel, BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
+
+        loadNextQuestion();
+    }
+
+    private void loadNextQuestion() {
+        if (currentIndex < manager.getAllCards().size()) {
+            Flashcard card = manager.getAllCards().get(currentIndex);
+            questionLabel.setText("Q" + (currentIndex + 1) + ": " + card.getQuestion());
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "Quiz Finished!\nScore: " + score + "/" + manager.getAllCards().size(),
+                    "Quiz Completed",
+                    JOptionPane.INFORMATION_MESSAGE);
+            currentIndex = 0;
+            score = 0;
+            app.switchTo("MainMenu");
         }
     }
 }
