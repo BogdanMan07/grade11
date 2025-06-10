@@ -54,3 +54,57 @@ public class FlashcardApp extends JFrame {
         new FlashcardApp();
     }
 }
+
+class Flashcard {
+    private String question;
+    private String answer;
+
+    public Flashcard(String question, String answer) {
+        this.question = question;
+        this.answer = answer;
+    }
+
+    public String getQuestion() {
+        return question;
+    }
+
+    public String getAnswer() {
+        return answer;
+    }
+
+    public void setQuestion(String question) {
+        this.question = question;
+    }
+
+    public void setAnswer(String answer) {
+        this.answer = answer;
+    }
+}
+
+class FlashcardManager {
+    private ArrayList<Flashcard> cards;
+
+    public FlashcardManager() {
+        this.cards = new ArrayList<>();
+    }
+
+    public void addCard(Flashcard card) {
+        cards.add(card);
+    }
+
+    public void deleteCard(int index) {
+        if (index >= 0 && index < cards.size()) {
+            cards.remove(index);
+        }
+    }
+
+    public void updateCard(int index, Flashcard card) {
+        if (index >= 0 && index < cards.size()) {
+            cards.set(index, card);
+        }
+    }
+
+    public ArrayList<Flashcard> getAllCards() {
+        return cards;
+    }
+}
